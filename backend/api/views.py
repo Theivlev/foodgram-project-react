@@ -5,19 +5,27 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from api.pagination import CustomPagination
 from api.permissions import IsAdminOrAuthor
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingList, Tag)
-from users.serializers import RecipeFollowSerializer
-
-from .render import PlainTextRenderer
-from .serializers import (IngredientSerializer, RecipeChangeSerializer,
-                          RecipeSerializer, ShoppingListSerializer,
-                          TagSerializer)
+from recipes.models import (
+    Ingredient,
+    Recipe,
+    ShoppingList,
+    Tag
+    )
+from users.serializers import (
+    RecipeFollowSerializer,
+    )
+from .serializers import (
+    IngredientSerializer,
+    RecipeChangeSerializer,
+    RecipeSerializer,
+    ShoppingListSerializer,
+    TagSerializer,
+    )
+from .service import generate_shopping_list
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -58,7 +66,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrAuthor,)
     pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
-    renderer_classes = [JSONRenderer, PlainTextRenderer]
     filter_backends = (DjangoFilterBackend,)
 
     def get_serializer_class(self):
@@ -82,30 +89,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         user = request.user
         recipe = get_object_or_404(Recipe, pk=pk)
+        serializer = RecipeFollowSerializer(
+            recipe, context={'request': request})
+
         if request.method == 'POST':
-            if Favorite.objects.filter(
-                user=user,
-                recipe=recipe
-            ).exists():
-                return Response(
-                    {'message': 'Рецепт уже в избранном'},
-                    status=status.HTTP_400_BAD_REQUEST)
-            Favorite.objects.create(user=user, recipe=recipe)
-            serializer = RecipeFollowSerializer(
-                recipe,
-                context={'request': request}
-            )
+            serializer.add_favorite_user(user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
-            if not Favorite.objects.filter(
-                user=user,
-                recipe=recipe
-            ).exists():
-                return Response(
-                    {'message': 'Рецепта нет в избранном'},
-                    status=status.HTTP_400_BAD_REQUEST)
-            favorite = get_object_or_404(Favorite, user=user, recipe=recipe)
-            favorite.delete()
+            serializer.remove_favorite_user(user)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=('post', 'delete'))
@@ -151,26 +142,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Скачивание списка покупок пользователя в виде текстового файла."""
 
         user = self.request.user
-        shopping_list = ShoppingList.objects.filter(user=user)
-        recipe_id = shopping_list.values_list('recipe', flat=True)
-        recipes = Recipe.objects.filter(id__in=recipe_id)
-        shopping_list_data = {}
-        for i in recipes:
-            for j in i.ingredients.all():
-                recipe_ingredient = RecipeIngredient.objects.filter(
-                    recipe=i, ingredient=j).first()
-                quantity = recipe_ingredient.quantity * i.ingredients.count()
-                if j.name in shopping_list_data:
-                    shopping_list_data[j.name] += quantity
-                else:
-                    shopping_list_data[j.name] = quantity
-        shopping_list_string = ''
-        for name, quantity in shopping_list_data.items():
-            shopping_list_string += f'{name}: {quantity}\n'
-
+        content = generate_shopping_list(user)
         filename = "foodgram_shoping_cart.txt"
-        response = HttpResponse(
-            shopping_list_string, content_type='text/plain')
+        response = HttpResponse(content, content_type='text/plain')
         response['Content-Disposition'] = f'attachment; filename={filename}'
 
         return response

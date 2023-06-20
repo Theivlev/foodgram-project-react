@@ -1,8 +1,8 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from recipes.models import Recipe
-
 from .models import Follow, UserFoodGram
+from recipes.models import Recipe, Favorite
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -18,15 +18,68 @@ class CustomUserSerializer(serializers.ModelSerializer):
             following=obj
         ).exists()
 
+    def validate_username(self, value):
+        """
+        Проверяет, что имя пользователя уникально и не равно 'me'.
+        """
+        if UserFoodGram.objects.filter(username=value
+                                       ).exclude(pk=self.instance.pk).exists():
+            raise ValidationError('Имя пользователя уже используется.')
+        if value.lower() == 'me':
+            raise ValidationError('Имя пользователя не может быть "me".')
+        return value
+
+    def validate_email(self, value):
+        """
+        Проверяет, что электронная почта уникальна.
+        """
+        if UserFoodGram.objects.filter(email=value
+                                       ).exclude(pk=self.instance.pk).exists():
+            raise ValidationError(
+                'Этот адрес электронной почты уже используется.')
+        return value
+
     class Meta:
         model = UserFoodGram
         fields = (
-            'email', 'id', 'username',
-            'first_name', 'last_name', 'is_subscribed')
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed'
+        )
 
 
 class RecipeFollowSerializer(serializers.ModelSerializer):
     """Сериализатор для получение информации о рецепте."""
+
+    def is_favorite_user(self, user):
+        return Favorite.objects.filter(
+            user=user, recipe=self.instance).exists()
+
+    def add_favorite_user(self, user):
+        favorite, created = Favorite.objects.get_or_create(
+            user=user, recipe=self.instance)
+        if not created:
+            raise serializers.ValidationError('Рецепт уже в избранном')
+
+    def remove_favorite_user(self, user):
+        favorite = Favorite.objects.filter(user=user, recipe=self.instance)
+        if favorite:
+            favorite.delete()
+        else:
+            raise serializers.ValidationError('Рецепта нет в избранном')
+
+    def validate(self, data):
+        user = self.context['request'].user
+        if self.context['request'].method == 'POST' and \
+                self.is_favorite_user(user):
+            raise serializers.ValidationError('Рецепт уже в избранном')
+        if self.context['request'].method == 'DELETE' and \
+                not self.is_favorite_user(user):
+            raise serializers.ValidationError('Рецепта нет в избранном')
+        return data
 
     class Meta:
         model = Recipe
@@ -60,6 +113,12 @@ class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
         fields = (
-            'id', 'email', 'username', 'first_name', 'last_name',
-                  'is_subscribed',
-                  'recipes', 'recipes_count')
+            'id',
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
+            )

@@ -1,8 +1,13 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingList, Tag)
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    ShoppingList,
+    Tag)
 from users.serializers import CustomUserSerializer
 
 
@@ -103,18 +108,17 @@ class RecipeChangeSerializer(serializers.ModelSerializer):
 
         recipe = Recipe.objects.create(**validated_data)
 
-        for i in tags:
-            recipe.tags.add(i)
+        for tag in tags:
+            recipe.tags.add(tag)
 
-        for j in ingredients:
-            quantity = j['quantity']
-            ingredient = get_object_or_404(Ingredient, pk=j['id'])
-
-            RecipeIngredient.objects.create(
+        recipe_ingredients = []
+        for ingredient in ingredients:
+            recipe_ingredients.append(RecipeIngredient(
                 recipe=recipe,
-                ingredient=ingredient,
-                quantity=quantity
-                )
+                ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
+                quantity=ingredient['quantity']
+                ))
+        RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
         return recipe
 
@@ -132,32 +136,53 @@ class RecipeChangeSerializer(serializers.ModelSerializer):
 
         current_tags = instance.tags.all()
 
-        for i in current_tags:
-            if i not in tags:
-                instance.tags.remove(i)
-        for j in tags:
-            if j not in current_tags:
-                instance.tags.add(j)
+        for tag in current_tags:
+            if tag not in tags:
+                instance.tags.clear()
+        for tag in tags:
+            if tag not in current_tags:
+                instance.tags.add(tag)
 
         if ingredients:
             RecipeIngredient.objects.filter(recipe=instance).delete()
-
-            for i in ingredients:
-                ingredient = get_object_or_404(Ingredient, pk=i['id'])
-                RecipeIngredient.objects.create(
+            recipe_ingredients = []
+            for ingredient in ingredients:
+                recipe_ingredients.append(RecipeIngredient(
                     recipe=instance,
-                    ingredient=ingredient,
-                    quantity=i['quantity']
-                )
-
+                    ingredient=get_object_or_404(Ingredient,
+                                                 pk=ingredient['id']),
+                    quantity=ingredient['quantity']
+                ))
+            RecipeIngredient.objects.bulk_create(recipe_ingredients)
         return instance
+
+    def validate(self, data):
+        if len(data['tags']) == 0:
+            raise serializers.ValidationError('Укажите хотя бы один тег.')
+
+        if len(set(data['tags'])) != len(data['tags']):
+            raise serializers.ValidationError('Теги не должны повторяться.')
+
+        ingredients_id = set()
+        for ingredient in data['ingredients']:
+            if ingredient['id'] in ingredients_id:
+                raise serializers.ValidationError(
+                    'Ингредиенты не должны повторяться.')
+            ingredients_id.add(ingredient['id'])
+
+        return data
 
     class Meta:
         model = Recipe
         fields = (
-            'id', 'author', 'title', 'image',
-            'description', 'ingredients',
-            'tags', 'cooking_time')
+            'id',
+            'author',
+            'title',
+            'image',
+            'description',
+            'ingredients',
+            'tags',
+            'cooking_time')
 
 
 class FavoriteSerializer(serializers.ModelSerializer):

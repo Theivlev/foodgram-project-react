@@ -1,5 +1,4 @@
-# Create your models here.
-from django.core.validators import MinLengthValidator
+from django.core.validators import MinValueValidator, MinLengthValidator
 from django.db import models
 
 from users.models import UserFoodGram
@@ -17,12 +16,18 @@ class Ingredient(models.Model):
         verbose_name='Единицы измерения',
         help_text='Единицы измерения')
 
-    def __str__(self):
-        return f' {self.name}, {self.measurement_unit}'
-
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_ingredient'
+            )
+        ]
+
+    def __str__(self):
+        return f' {self.name}, {self.measurement_unit}'
 
 
 class Tag(models.Model):
@@ -32,6 +37,7 @@ class Tag(models.Model):
         max_length=50,
         verbose_name='Название тега',
         help_text='Название тега',
+        unique=True
         )
     color = models.CharField(
         max_length=7,
@@ -44,12 +50,18 @@ class Tag(models.Model):
         unique=True
         )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'color'],
+                name='unique_tag'
+            )
+        ]
+
+    def __str__(self):
+        return self.name
 
 
 class Recipe(models.Model):
@@ -100,13 +112,13 @@ class Recipe(models.Model):
         db_index=True,
     )
 
-    def __str__(self):
-        return self.title
-
     class Meta:
         ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+
+    def __str__(self):
+        return self.title
 
 
 class RecipeIngredient(models.Model):
@@ -125,11 +137,23 @@ class RecipeIngredient(models.Model):
         )
     quantity = models.FloatField(
         verbose_name='Количество ингредиента',
-    )
+        validators=(MinValueValidator(
+            1, message='Минимальное количество ингредиентов 1'),
+        ))
 
     class Meta:
         verbose_name = 'RecipeIngredient'
         verbose_name_plural = 'RecipeIngredients'
+        constraints = [
+            models.UniqueConstraint(fields=['recipe', 'ingredient'],
+                                    name='unique_recipe_ingredient')
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.recipe.title} - "
+            f"{self.ingredient.name} "
+            f"({self.quantity})")
 
 
 class Favorite(models.Model):
@@ -144,12 +168,18 @@ class Favorite(models.Model):
         on_delete=models.CASCADE,
         )
 
-    def __str__(self):
-        return f'{self.user} добавил {self.recipe} в избранное'
-
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite',
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} добавил {self.recipe} в избранное'
 
 
 class ShoppingList(models.Model):
@@ -164,9 +194,15 @@ class ShoppingList(models.Model):
         on_delete=models.CASCADE,
         )
 
-    def __str__(self):
-        return f'{self.user} добавил {self.recipe} в список покупок'
-
     class Meta:
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_shopping_list',
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} добавил {self.recipe} в список покупок'

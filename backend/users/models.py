@@ -5,8 +5,10 @@ from django.db import models
 class UserFoodGram(AbstractUser):
     """Модель пользователя сервиса FoodGram."""
 
-    email = models.EmailField(max_length=254, blank=False, unique=True,)
-    username = models.CharField(max_length=128, unique=True,)
+    email = models.EmailField(
+        max_length=254, blank=False, unique=True, verbose_name='Почта')
+    username = models.CharField(
+        max_length=128, unique=True, verbose_name='Никнейм')
     first_name = models.CharField(
         max_length=150, verbose_name='Имя пользователя')
     last_name = models.CharField(
