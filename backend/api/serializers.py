@@ -74,11 +74,17 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'id', 'author', 'title', 'image',
-            'description', 'ingredients',
-            'tags', 'is_in_shopping_cart',
+            'id',
+            'author',
+            'title',
+            'image',
+            'description',
+            'ingredients',
+            'tags',
+            'is_in_shopping_cart',
             'is_favorited',
-            'cooking_time')
+            'cooking_time'
+            )
 
 
 class RecipeChangeIngredientSerializer(serializers.ModelSerializer):
@@ -134,14 +140,8 @@ class RecipeChangeSerializer(serializers.ModelSerializer):
             'cooking_time', instance.cooking_time)
         instance.save()
 
-        current_tags = instance.tags.all()
-
-        for tag in current_tags:
-            if tag not in tags:
-                instance.tags.clear()
-        for tag in tags:
-            if tag not in current_tags:
-                instance.tags.add(tag)
+        if tags is not None:
+            instance.tags.set(tags)
 
         if ingredients:
             RecipeIngredient.objects.filter(recipe=instance).delete()
@@ -163,6 +163,13 @@ class RecipeChangeSerializer(serializers.ModelSerializer):
         if len(set(data['tags'])) != len(data['tags']):
             raise serializers.ValidationError('Теги не должны повторяться.')
 
+        if data.get('cooking_time', 0) < 1:
+            raise serializers.ValidationError(
+                'Минимальное время приготовления 1 минута.')
+
+        if len(data['ingredients']) < 1:
+            raise serializers.ValidationError(
+                'Укажите хотя бы один ингредиент.')
         ingredients_id = set()
         for ingredient in data['ingredients']:
             if ingredient['id'] in ingredients_id:

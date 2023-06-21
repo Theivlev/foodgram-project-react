@@ -22,10 +22,10 @@ from .serializers import (
     IngredientSerializer,
     RecipeChangeSerializer,
     RecipeSerializer,
-    ShoppingListSerializer,
     TagSerializer,
     )
 from .service import generate_shopping_list
+from .utils import shopping_delete, shopping_post
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -102,38 +102,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=('post', 'delete'))
     def shopping_cart(self, request,  pk=None):
         """Добавление/удаление рецепта из списка покупок для пользователя."""
-
-        user = request.user
-        recipe = get_object_or_404(Recipe,  pk=pk)
         if request.method == 'POST':
-            if ShoppingList.objects.filter(
-                user=user,
-                recipe=recipe,
-            ).exists():
-                return Response(
-                    {'message':  'Рецепт уже в списке покупок.'},
-                    status=status.HTTP_400_BAD_REQUEST)
-            ShoppingList.objects.create(
-                user=user,
-                recipe=recipe
-            )
-            serializer = ShoppingListSerializer(
-                recipe,
-                context={'request': request}
-            )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == 'DELETE':
-            if not ShoppingList.objects.filter(user=user,
-                                               recipe=recipe).exists():
-                return Response(
-                    {'message':  'Рецепта нет в списке покупок.'},
-                    status=status.HTTP_400_BAD_REQUEST)
-            shopping_list = get_object_or_404(
-                ShoppingList,
-                user=user,
-                recipe=recipe)
-            shopping_list.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return shopping_post(request, pk, ShoppingList,
+                                 RecipeFollowSerializer)
+        return shopping_delete(request, pk, ShoppingList)
 
     @action(
         methods=['get'], detail=False,

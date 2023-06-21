@@ -22,10 +22,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
         """
         Проверяет, что имя пользователя уникально и не равно 'me'.
         """
-        if UserFoodGram.objects.filter(username=value
+        if UserFoodGram.objects.filter(username__iexact=value
                                        ).exclude(pk=self.instance.pk).exists():
             raise ValidationError('Имя пользователя уже используется.')
-        if value.lower() == 'me':
+        if value.casefold() == 'me':
             raise ValidationError('Имя пользователя не может быть "me".')
         return value
 
@@ -33,7 +33,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         """
         Проверяет, что электронная почта уникальна.
         """
-        if UserFoodGram.objects.filter(email=value
+        if UserFoodGram.objects.filter(email__iexact=value
                                        ).exclude(pk=self.instance.pk).exists():
             raise ValidationError(
                 'Этот адрес электронной почты уже используется.')

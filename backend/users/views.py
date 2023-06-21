@@ -1,11 +1,11 @@
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.pagination import CustomPagination
+from api.utils import subscrib_delete, subscrib_post
 from .models import Follow, UserFoodGram
 from .serializers import CustomUserSerializer, FollowSerializer
 
@@ -42,31 +42,10 @@ class CustomUserViewSet(UserViewSet):
     def subscribe(self, request, id=None):
         """Подписывает пользователя на другого пользователя."""
 
-        user = request.user
-        author = get_object_or_404(UserFoodGram, id=id)
-        if self.request.method == 'POST':
-            if Follow.objects.filter(user=user, following=author).exists():
-                return Response(
-                    {'errors': 'Нельзя подписаться дважды'},
-                    status=status.HTTP_400_BAD_REQUEST)
-            if user == author:
-                return Response(
-                    {'errors': 'Нельзя подписаться на самого себя'},
-                    status=status.HTTP_400_BAD_REQUEST)
-            follow = Follow.objects.create(user=user, following=author)
-            serializer = FollowSerializer(follow, context={'request': request})
-            return Response(
-                serializer.data, status=status.HTTP_201_CREATED)
-        if Follow.objects.filter(user=user, following=author).exists():
-            follow = get_object_or_404(Follow, user=user, following=author)
-            follow.delete()
-            return Response(
-                {'message': 'Подписка удалена'},
-                status=status.HTTP_204_NO_CONTENT
-            )
-        return Response(
-            {'errors': 'Вы не подписаны на данного пользователя'},
-            status=status.HTTP_400_BAD_REQUEST)
+        if request.method == 'POST':
+            return subscrib_post(request, id, Follow, UserFoodGram,
+                                 FollowSerializer)
+        return subscrib_delete(request, id, Follow, UserFoodGram)
 
     @action(
         methods=['get'],
