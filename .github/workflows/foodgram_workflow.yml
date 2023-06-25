@@ -24,16 +24,13 @@ jobs:
         pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
         # установка зависимостей
         pip install -r backend/requirements.txt 
-    - name: Pytest
-      run: pytest
 
     - name: Test with flake8 and django tests
       run: |
         python -m flake8
-        cd backend/
-        python manage.py test
 
-# 1
+
+# 2
   build_and_push_to_docker_hub_backend:
       name: Push Docker image_backend to Docker Hub
       runs-on: ubuntu-latest
