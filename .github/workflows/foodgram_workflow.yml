@@ -1,5 +1,5 @@
 name: Django-app workflow
-# 123123
+# 4444
 on:
   push:
     branches:
@@ -85,10 +85,10 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
-          sudo docker pull theivlev/backend_1:v1
-          sudo docker pull theivlev/frontend_1:v1
           sudo docker-compose stop
           sudo docker-compose rm -f backend frontend
+          sudo docker pull theivlev/backend_1:v1
+          sudo docker pull theivlev/frontend_1:v1
           touch .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
