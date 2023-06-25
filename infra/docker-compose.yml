@@ -6,7 +6,7 @@ services:
     env_file:
       - ./.env
     volumes:
-      - db_data:/var/lib/postgresql/data/
+      - db_value:/var/lib/postgresql/data/
 
   backend:
     image: theivlev/backend:v1
