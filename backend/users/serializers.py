@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from .models import Follow, UserFoodGram
 from recipes.models import Recipe, Favorite
+from djoser.serializers import UserCreateSerializer
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -83,7 +84,7 @@ class RecipeFollowSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'title', 'image', 'cooking_time')
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class FollowSerializer(serializers.ModelSerializer):
@@ -122,3 +123,15 @@ class FollowSerializer(serializers.ModelSerializer):
             'recipes',
             'recipes_count'
             )
+
+
+class CustomUserCreateSerializer(UserCreateSerializer):
+
+    class Meta:
+        model = UserFoodGram
+        fields = ('id',
+                  'username',
+                  'first_name',
+                  'last_name',
+                  'email',
+                  'password')

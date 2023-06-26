@@ -74,7 +74,7 @@ class Recipe(models.Model):
         related_name='recipes',
         on_delete=models.CASCADE,
         )
-    title = models.CharField(
+    name = models.CharField(
         max_length=200,
         verbose_name='Название рецепта',
         help_text='Название рецепта',
@@ -86,7 +86,7 @@ class Recipe(models.Model):
         null=True,
         blank=True,
         )
-    description = models.TextField(
+    text = models.TextField(
         verbose_name='Описание рецепта',
         help_text='Описание рецепта',
     )
@@ -118,7 +118,7 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class RecipeIngredient(models.Model):
@@ -135,7 +135,7 @@ class RecipeIngredient(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
         )
-    quantity = models.FloatField(
+    amount = models.FloatField(
         verbose_name='Количество ингредиента',
         validators=(MinValueValidator(
             1, message='Минимальное количество ингредиентов 1'),
@@ -151,9 +151,9 @@ class RecipeIngredient(models.Model):
 
     def __str__(self):
         return (
-            f"{self.recipe.title} - "
+            f"{self.recipe.name} - "
             f"{self.ingredient.name} "
-            f"({self.quantity})")
+            f"({self.amount})")
 
 
 class Favorite(models.Model):

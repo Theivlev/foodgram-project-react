@@ -8,9 +8,9 @@ class IngredientInline(admin.TabularInline):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', )
-    list_filter = ('author', 'title', 'tags')
-    ordering = ('title',)
+    list_display = ('name', 'author', )
+    list_filter = ('author', 'name', 'tags')
+    ordering = ('name',)
     search_fields = ('username', 'email', 'first_name', 'last_name',)
     inlines = [IngredientInline]
 
@@ -29,7 +29,7 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ('id', 'recipe', 'ingredient', 'quantity')
+    list_display = ('id', 'recipe', 'ingredient', 'amount')
     search_fields = ('recipe', 'ingredient',)
     list_filter = ('recipe', 'ingredient',)
 

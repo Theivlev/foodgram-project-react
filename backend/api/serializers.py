@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import (
     Favorite,
@@ -37,7 +38,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeIngredient
-        fields = ('id', 'name', 'measurement_unit', 'quantity')
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -76,9 +77,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'author',
-            'title',
+            'name',
             'image',
-            'description',
+            'text',
             'ingredients',
             'tags',
             'is_in_shopping_cart',
@@ -92,11 +93,11 @@ class RecipeChangeIngredientSerializer(serializers.ModelSerializer):
 
     id = serializers.IntegerField()
     recipe = serializers.PrimaryKeyRelatedField(read_only=True)
-    quantity = serializers.IntegerField(write_only=True, min_value=1)
+    amount = serializers.IntegerField(write_only=True, min_value=1)
 
     class Meta:
         model = RecipeIngredient
-        fields = ('id', 'recipe', 'quantity')
+        fields = ('id', 'recipe', 'amount',)
 
 
 class RecipeChangeSerializer(serializers.ModelSerializer):
@@ -107,6 +108,7 @@ class RecipeChangeSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True)
     cooking_time = serializers.IntegerField(min_value=1)
+    image = Base64ImageField()
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
@@ -122,7 +124,7 @@ class RecipeChangeSerializer(serializers.ModelSerializer):
             recipe_ingredients.append(RecipeIngredient(
                 recipe=recipe,
                 ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
-                quantity=ingredient['quantity']
+                amount=ingredient['amount']
                 ))
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
@@ -132,9 +134,9 @@ class RecipeChangeSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags', None)
         ingredients = validated_data.pop('ingredients', None)
 
-        instance.title = validated_data.get('title', instance.title)
-        instance.description = validated_data.get(
-            'description', instance.description)
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get(
+            'text', instance.text)
         instance.image = validated_data.get('image', instance.image)
         instance.cooking_time = validated_data.get(
             'cooking_time', instance.cooking_time)
@@ -151,7 +153,7 @@ class RecipeChangeSerializer(serializers.ModelSerializer):
                     recipe=instance,
                     ingredient=get_object_or_404(Ingredient,
                                                  pk=ingredient['id']),
-                    quantity=ingredient['quantity']
+                    amount=ingredient['amount']
                 ))
             RecipeIngredient.objects.bulk_create(recipe_ingredients)
         return instance
@@ -184,9 +186,9 @@ class RecipeChangeSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'author',
-            'title',
+            'name',
             'image',
-            'description',
+            'text',
             'ingredients',
             'tags',
             'cooking_time')
@@ -203,4 +205,4 @@ class ShoppingListSerializer(serializers.ModelSerializer):
     """Сериализтор для списка покупок."""
     class Meta:
         model = Recipe
-        fields = ('id', 'title', 'image', 'cooking_time')
+        fields = ('id', 'name', 'image', 'cooking_time')

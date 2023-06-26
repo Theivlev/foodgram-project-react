@@ -26,6 +26,7 @@ from .serializers import (
     )
 from .service import generate_shopping_list
 from .utils import shopping_delete, shopping_post
+from api.filters import RecipeFilter
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -67,6 +68,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
     filter_backends = (DjangoFilterBackend,)
+    filter_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH', 'DELETE'):
