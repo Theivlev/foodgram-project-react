@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from drf_extra_fields.fields import Base64ImageField
+from .service import Base64ImageField
 
 from recipes.models import (
     Favorite,
@@ -52,6 +52,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         method_name='get_is_favorited')
     is_in_shopping_cart = serializers.SerializerMethodField(
         method_name='get_is_in_shopping_cart')
+    image = Base64ImageField()
 
     def get_is_favorited(self, obj):
         user = self.context['request'].user

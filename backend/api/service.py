@@ -1,4 +1,7 @@
 from recipes.models import Recipe, RecipeIngredient, ShoppingList
+from django.core.files.base import ContentFile
+import base64
+from rest_framework import serializers
 
 
 def generate_shopping_list(user):
@@ -22,3 +25,11 @@ def generate_shopping_list(user):
             shopping_list_string += f'{name}: {amount}\n'
 
     return shopping_list_string
+
+
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')  
+            ext = format.split('/')[-1]  
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
