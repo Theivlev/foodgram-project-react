@@ -13,9 +13,9 @@ def generate_shopping_list(user):
         for ingredient in recipe.ingredients.all():
             recipe_ingredient = RecipeIngredient.objects.filter(
                 recipe=recipe, ingredient=ingredient).first()
-            amount = (
-                recipe_ingredient.amount *
-                recipe.ingredients.count())
+            recipe_amount = recipe_ingredient.amount
+            recipe_count = recipe.ingredients.count()
+            amount = recipe_amount * recipe_count
             if ingredient.name in shopping_list_data:
                 shopping_list_data[ingredient.name] += amount
             else:
