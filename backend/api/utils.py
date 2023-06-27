@@ -26,7 +26,7 @@ def shopping_delete(request, pk, model):
         return Response(
             {'massage': 'Рецепт успешно удален из списка покупок'},
             status=status.HTTP_204_NO_CONTENT)
-    return Response({'message':  'Рецепта нет в списке покупок.'},
+    return Response({'message': 'Рецепта нет в списке покупок.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
 
