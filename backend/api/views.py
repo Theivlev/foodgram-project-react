@@ -13,17 +13,14 @@ from recipes.models import (
     Ingredient,
     Recipe,
     ShoppingList,
-    Tag
-    )
+    Tag)
 from users.serializers import (
-    RecipeFollowSerializer,
-    )
+    RecipeFollowSerializer,)
 from .serializers import (
     IngredientSerializer,
     RecipeChangeSerializer,
     RecipeSerializer,
-    TagSerializer,
-    )
+    TagSerializer,)
 from .service import generate_shopping_list
 from .utils import shopping_delete, shopping_post
 from api.filters import RecipeFilter

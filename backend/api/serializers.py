@@ -85,8 +85,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'tags',
             'is_in_shopping_cart',
             'is_favorited',
-            'cooking_time'
-            )
+            'cooking_time')
 
 
 class RecipeChangeIngredientSerializer(serializers.ModelSerializer):
@@ -125,8 +124,7 @@ class RecipeChangeSerializer(serializers.ModelSerializer):
             recipe_ingredients.append(RecipeIngredient(
                 recipe=recipe,
                 ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
-                amount=ingredient['amount']
-                ))
+                amount=ingredient['amount']))
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
         return recipe
