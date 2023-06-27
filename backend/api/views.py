@@ -102,7 +102,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=('post', 'delete'))
-    def shopping_cart(self, request,  pk=None):
+    def shopping_cart(self, request, pk=None):
         """Добавление/удаление рецепта из списка покупок для пользователя."""
         if request.method == 'POST':
             return shopping_post(request, pk, ShoppingList,
