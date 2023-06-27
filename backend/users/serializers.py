@@ -121,8 +121,7 @@ class FollowSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed',
             'recipes',
-            'recipes_count'
-            )
+            'recipes_count')
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
