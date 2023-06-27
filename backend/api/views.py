@@ -86,7 +86,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     @action(detail=True, methods=['post', 'delete'],)
-    def favorite(self, request,  pk=None):
+    def favorite(self, request, pk=None):
         """Добавление/удаление рецепта из списка избранных для пользователя."""
 
         user = request.user

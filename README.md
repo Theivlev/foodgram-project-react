@@ -82,4 +82,9 @@ Python-разработчик (Backend)
 E-mail: theivlev@yandex.ru  
 
 
-[![foodgram_workflow](https://github.com/Theivlev/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg)
+[![foodgram_workflow](https://github.com/Theivlev/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+
+http://62.84.126.204/recipes
+Имя: Alex
+Почта: theivlev@yandex.ru
+Пароль: iVZCI3no3

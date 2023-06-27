@@ -69,6 +69,5 @@ class CustomUserViewSet(UserViewSet):
             'count': len(pages),
             'next': self.paginator.get_next_link(),
             'previous': self.paginator.get_previous_link(),
-            'results': serializer.data
-                         }
+            'results': serializer.data}
         return Response(response_data)

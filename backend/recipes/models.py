@@ -89,7 +89,7 @@ class Recipe(models.Model):
     text = models.TextField(
         verbose_name='Описание рецепта',
         help_text='Описание рецепта',
-    )
+        )
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
@@ -105,12 +105,12 @@ class Recipe(models.Model):
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления (минуты)',
         help_text='Время приготовления (минуты)',
-    )
+        )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации рецепта',
         auto_now_add=True,
         db_index=True,
-    )
+        )
 
     class Meta:
         ordering = ('-pub_date',)
