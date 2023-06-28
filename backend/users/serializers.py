@@ -22,27 +22,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
             following=obj
         ).exists()
 
-    def validate_username(self, value):
-        """
-        Проверяет, что имя пользователя уникально и не равно 'me'.
-        """
-        if UserFoodGram.objects.filter(username__iexact=value
-                                       ).exclude(pk=self.instance.pk).exists():
-            raise ValidationError('Имя пользователя уже используется.')
-        if value.casefold() == 'me':
-            raise ValidationError('Имя пользователя не может быть "me".')
-        return value
-
-    def validate_email(self, value):
-        """
-        Проверяет, что электронная почта уникальна.
-        """
-        if UserFoodGram.objects.filter(email__iexact=value
-                                       ).exclude(pk=self.instance.pk).exists():
-            raise ValidationError(
-                'Этот адрес электронной почты уже используется.')
-        return value
-
     class Meta:
         model = UserFoodGram
         fields = (
@@ -128,6 +107,27 @@ class FollowSerializer(serializers.ModelSerializer):
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
+
+    def validate_username(self, value):
+        """
+        Проверяет, что имя пользователя уникально и не равно 'me'.
+        """
+        if UserFoodGram.objects.filter(username__iexact=value
+                                       ).exclude(pk=self.instance.pk).exists():
+            raise ValidationError('Имя пользователя уже используется.')
+        if value.casefold() == 'me':
+            raise ValidationError('Имя пользователя не может быть "me".')
+        return value
+
+    def validate_email(self, value):
+        """
+        Проверяет, что электронная почта уникальна.
+        """
+        if UserFoodGram.objects.filter(email__iexact=value
+                                       ).exclude(pk=self.instance.pk).exists():
+            raise ValidationError(
+                'Этот адрес электронной почты уже используется.')
+        return value
 
     class Meta:
         model = UserFoodGram
