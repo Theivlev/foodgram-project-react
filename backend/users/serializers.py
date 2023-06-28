@@ -107,13 +107,15 @@ class FollowSerializer(serializers.ModelSerializer):
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
+    username = serializers.CharField()
+    email = serializers.EmailField()
 
     def validate_username(self, value):
         """
         Проверяет, что имя пользователя уникально и не равно 'me'.
         """
         if UserFoodGram.objects.filter(username__iexact=value
-                                       ).exclude(pk=self.instance.pk).exists():
+                                       ).exists():
             raise ValidationError('Имя пользователя уже используется.')
         if value.casefold() == 'me':
             raise ValidationError('Имя пользователя не может быть "me".')
@@ -123,13 +125,14 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         """
         Проверяет, что электронная почта уникальна.
         """
+
         if UserFoodGram.objects.filter(email__iexact=value
-                                       ).exclude(pk=self.instance.pk).exists():
+                                       ).exists():
             raise ValidationError(
                 'Этот адрес электронной почты уже используется.')
         return value
 
-    class Meta:
+    class Meta(UserCreateSerializer.Meta):
         model = UserFoodGram
         fields = ('id',
                   'username',
