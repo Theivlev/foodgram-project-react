@@ -107,6 +107,7 @@ class FollowSerializer(serializers.ModelSerializer):
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
+
     username = serializers.CharField()
     email = serializers.EmailField()
 
