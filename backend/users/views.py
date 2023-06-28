@@ -1,7 +1,8 @@
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
 from api.pagination import CustomPagination
@@ -12,7 +13,7 @@ from .serializers import CustomUserSerializer, FollowSerializer
 
 class CustomUserViewSet(UserViewSet):
     """ViewSet для работы с пользователями сервиса FoodGram."""
-
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = UserFoodGram.objects.all().order_by('-date_joined')
     pagination_class = CustomPagination
 
