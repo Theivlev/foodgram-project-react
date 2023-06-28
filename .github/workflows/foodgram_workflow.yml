@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - master
-# 123444
-# 12312312
+
 jobs:
-  # tests:
-  #   runs-on: ubuntu-latest
+  # tests:adasdas
 
   #   steps:
   #   - uses: actions/checkout@v2
@@ -28,7 +26,7 @@ jobs:
 
   #   - name: Test with flake8 and django tests
   #     run: |
-  #       python -m flake8 --exclude=migrations
+  #       python -m flake8 --exclude=migrat
 
 
   build_and_push_to_docker_hub_backend:
