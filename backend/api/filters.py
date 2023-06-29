@@ -1,8 +1,8 @@
 from distutils.util import strtobool
-
+from django_filters.rest_framework import FilterSet
 from django_filters import rest_framework
 
-from recipes.models import Favorite, Recipe, ShoppingList
+from recipes.models import Favorite, Recipe, ShoppingList, Ingredient
 from recipes.models import Tag
 
 CHOICES_LIST = (
@@ -59,3 +59,12 @@ class RecipeFilter(rest_framework.FilterSet):
     class Meta:
         model = Recipe
         fields = ('author', 'tags')
+
+
+class IngredientFilter(FilterSet):
+    name = rest_framework.CharFilter(
+        field_name="name", lookup_expr='icontains')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name', )

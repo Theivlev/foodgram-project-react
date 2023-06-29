@@ -89,9 +89,12 @@ class FollowSerializer(serializers.ModelSerializer):
         ).exists()
 
     def get_recipes(self, obj):
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
         queryset = Recipe.objects.filter(author=obj.following)
-        serializer = RecipeFollowSerializer(queryset, many=True)
-        return serializer.data
+        if limit:
+            queryset = queryset[:int(limit)]
+        return RecipeFollowSerializer(queryset, many=True).data
 
     class Meta:
         model = Follow

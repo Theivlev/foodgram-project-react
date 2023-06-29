@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
@@ -23,7 +22,7 @@ from .serializers import (
     TagSerializer,)
 from .service import generate_shopping_list
 from .utils import shopping_delete, shopping_post
-from api.filters import RecipeFilter
+from .filters import RecipeFilter, IngredientFilter
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -36,8 +35,8 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
-    filter_backends = (SearchFilter,)
-    search_fields = ('^name',)
+    filter_backends = (DjangoFilterBackend, )
+    filter_class = IngredientFilter
 
 
 class TagViewSet(viewsets.ModelViewSet):

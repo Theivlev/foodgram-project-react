@@ -16,8 +16,8 @@ class UserFoodGram(AbstractUser):
     password = models.CharField(max_length=128)
 
     class Meta:
-        verbose_name = 'Имя пользователя'
-        verbose_name_plural = 'Имя пользователей'
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     def __str__(self) -> str:
         return self.username
