@@ -1,4 +1,4 @@
-from rest_framework.authtoken.serializers import TokenCreateSerializer
+from djoser.serializers import TokenCreateSerializer
 
 
 class CustomTokenCreateSerializer(TokenCreateSerializer):

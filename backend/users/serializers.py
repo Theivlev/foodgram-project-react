@@ -134,7 +134,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
                                        ).exists():
             raise ValidationError(
                 'Этот адрес электронной почты уже используется.')
-        return value
+        return value.lower()
 
     class Meta(UserCreateSerializer.Meta):
         model = UserFoodGram
