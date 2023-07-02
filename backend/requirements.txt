@@ -20,7 +20,7 @@ filetype==1.2.0
 gunicorn==20.0.4
 idna==3.4
 iniconfig==2.0.0
-isort
+isort==5.12.0
 itypes==1.2.0
 Jinja2==3.1.2
 MarkupSafe==2.1.2
@@ -46,5 +46,5 @@ sqlparse==0.3.1
 toml==0.10.2
 uritemplate==4.1.1
 urllib3==2.0.2
-python-dotenv
+python-dotenv==1.0.0
 django-filter==2.4.0
